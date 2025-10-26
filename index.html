@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>MastiBot</title>
+<style>
+body { font-family: Arial; background:#121212; color:#eee; padding:10px; }
+#chat { height: 80vh; overflow:auto; }
+.bubble { padding:8px; margin:5px; border-radius:8px; max-width:70%; }
+.user { background:#0b84ff; margin-left:auto; }
+.bot { background:#333; margin-right:auto; }
+input { width:80%; padding:8px; }
+button { padding:8px; }
+</style>
+</head>
+<body>
+<div id="chat"></div>
+<input id="msg" placeholder="Say something">
+<button onclick="send()">Send</button>
+
+<script>
+const BID = "YOUR_BID";
+const KEY = "YOUR_KEY";
+
+function appendUser(text){
+  const d = document.createElement('div'); d.className='bubble user'; d.textContent=text;
+  document.getElementById('chat').appendChild(d);
+}
+function appendBot(text){
+  const d = document.createElement('div'); d.className='bubble bot'; d.textContent=text;
+  document.getElementById('chat').appendChild(d);
+}
+
+async function send(){
+  const input = document.getElementById('msg');
+  const text = input.value.trim(); if(!text) return;
+  appendUser(text); input.value='';
+  appendBot('Typing...');
+  try{
+    const url = `https://api.brainshop.ai/get?bid=${BID}&key=${KEY}&uid=1&msg=${encodeURIComponent(text)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const bots = document.getElementsByClassName('bot');
+    if(bots.length>0) bots[bots.length-1].remove();
+    appendBot(data.cnt || "No reply");
+  } catch(e){
+    const bots = document.getElementsByClassName('bot');
+    if(bots.length>0) bots[bots.length-1].remove();
+    appendBot("Network error");
+  }
+}
+</script>
+</body>
+</html>
